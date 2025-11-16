@@ -1,0 +1,667 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "eClinic Collecteurs API",
+    "version": "1.0.0",
+    "description": "API for managing and accessing collecteurs data - Read Only",
+    "contact": {
+      "name": "API Support",
+      "email": "support@eclinic.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://spdx.org/licenses/MIT.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.eclinic.com/v1",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Collecteurs",
+      "description": "Collecteurs management API"
+    }
+  ],
+  "paths": {
+    "/collecteurs": {
+      "get": {
+        "summary": "Get all collecteurs with optional filters",
+        "description": "Retrieve a paginated list of collecteurs with filtering options",
+        "tags": ["Collecteurs"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "zone_id",
+            "in": "query",
+            "description": "Filter by zone ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "description": "Filter by city name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "statut",
+            "in": "query",
+            "description": "Filter by status",
+            "schema": {
+              "type": "string",
+              "enum": ["actif", "inactif"]
+            }
+          },
+          {
+            "name": "lot",
+            "in": "query",
+            "description": "Filter by lot",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term for name, numero_collecteur, or phone",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Collecteur"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "John Doe",
+                      "numero_collecteur": "COL-001",
+                      "phone": "+1234567890",
+                      "statut": "actif",
+                      "lot": "LOT-A",
+                      "batiments_total": 150,
+                      "batiments_validee": 120,
+                      "avancement_percent": 80,
+                      "derniere_activite": "2024-01-15T10:30:00.000Z",
+                      "created_at": "2024-01-01T00:00:00.000Z",
+                      "updated_at": "2024-01-15T10:30:00.000Z",
+                      "zone": {
+                        "id": 1,
+                        "name": "Zone Nord"
+                      }
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 50,
+                    "total": 100,
+                    "totalPages": 2
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/collecteurs/{id}": {
+      "get": {
+        "summary": "Get collecteur by ID",
+        "description": "Retrieve a specific collecteur by its ID",
+        "tags": ["Collecteurs"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Collecteur ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Collecteur"
+                },
+                "example": {
+                  "id": 1,
+                  "name": "John Doe",
+                  "numero_collecteur": "COL-001",
+                  "phone": "+1234567890",
+                  "statut": "actif",
+                  "lot": "LOT-A",
+                  "batiments_total": 150,
+                  "batiments_validee": 120,
+                  "avancement_percent": 80,
+                  "derniere_activite": "2024-01-15T10:30:00.000Z",
+                  "created_at": "2024-01-01T00:00:00.000Z",
+                  "updated_at": "2024-01-15T10:30:00.000Z",
+                  "zone": {
+                    "id": 1,
+                    "name": "Zone Nord"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/collecteurs/stats": {
+      "get": {
+        "summary": "Get collecteurs statistics",
+        "description": "Retrieve overall statistics about collecteurs",
+        "tags": ["Collecteurs"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "zone_id",
+            "in": "query",
+            "description": "Filter by zone ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stats"
+                },
+                "example": {
+                  "total_collecteurs": 50,
+                  "actifs": 45,
+                  "inactifs": 5,
+                  "total_batiments": 5000,
+                  "total_batiments_validees": 4000,
+                  "avg_avancement": 80.5
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/collecteurs/by-zone/{zone_id}": {
+      "get": {
+        "summary": "Get collecteurs by zone",
+        "description": "Retrieve collecteurs filtered by zone ID",
+        "tags": ["Collecteurs"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "zone_id",
+            "in": "path",
+            "required": true,
+            "description": "Zone ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Collecteur"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "John Doe",
+                      "numero_collecteur": "COL-001",
+                      "phone": "+1234567890",
+                      "statut": "actif",
+                      "lot": "LOT-A",
+                      "batiments_total": 150,
+                      "batiments_validee": 120,
+                      "avancement_percent": 80,
+                      "derniere_activite": "2024-01-15T10:30:00.000Z",
+                      "created_at": "2024-01-01T00:00:00.000Z",
+                      "updated_at": "2024-01-15T10:30:00.000Z"
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 50,
+                    "total": 25,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/collecteurs/search/{term}": {
+      "get": {
+        "summary": "Search collecteurs by term",
+        "description": "Search collecteurs by name, numero_collecteur, phone, or lot",
+        "tags": ["Collecteurs"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "term",
+            "in": "path",
+            "required": true,
+            "description": "Search term",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Collecteur"
+                      }
+                    },
+                    "search_term": {
+                      "type": "string"
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "John Doe",
+                      "numero_collecteur": "COL-001",
+                      "phone": "+1234567890",
+                      "statut": "actif",
+                      "lot": "LOT-A",
+                      "batiments_total": 150,
+                      "batiments_validee": 120,
+                      "avancement_percent": 80,
+                      "derniere_activite": "2024-01-15T10:30:00.000Z",
+                      "created_at": "2024-01-01T00:00:00.000Z",
+                      "updated_at": "2024-01-15T10:30:00.000Z",
+                      "zone": {
+                        "id": 1,
+                        "name": "Zone Nord"
+                      }
+                    }
+                  ],
+                  "search_term": "john",
+                  "pagination": {
+                    "page": 1,
+                    "limit": 20,
+                    "total": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API Key for authentication"
+      }
+    },
+    "schemas": {
+      "Collecteur": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "numero_collecteur": {
+            "type": "string",
+            "example": "COL-001"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+1234567890"
+          },
+          "statut": {
+            "type": "string",
+            "enum": ["actif", "inactif"],
+            "example": "actif"
+          },
+          "lot": {
+            "type": "string",
+            "example": "LOT-A"
+          },
+          "batiments_total": {
+            "type": "integer",
+            "example": 150
+          },
+          "batiments_validee": {
+            "type": "integer",
+            "example": 120
+          },
+          "avancement_percent": {
+            "type": "integer",
+            "example": 80
+          },
+          "derniere_activite": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T10:30:00.000Z"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T10:30:00.000Z"
+          },
+          "zone": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "name": {
+                "type": "string",
+                "example": "Zone Nord"
+              }
+            }
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "example": 50
+          },
+          "total": {
+            "type": "integer",
+            "example": 100
+          },
+          "totalPages": {
+            "type": "integer",
+            "example": 2
+          }
+        }
+      },
+      "Stats": {
+        "type": "object",
+        "properties": {
+          "total_collecteurs": {
+            "type": "integer",
+            "example": 50
+          },
+          "actifs": {
+            "type": "integer",
+            "example": 45
+          },
+          "inactifs": {
+            "type": "integer",
+            "example": 5
+          },
+          "total_batiments": {
+            "type": "integer",
+            "example": 5000
+          },
+          "total_batiments_validees": {
+            "type": "integer",
+            "example": 4000
+          },
+          "avg_avancement": {
+            "type": "number",
+            "format": "float",
+            "example": 80.5
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Error message description"
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Collecteur not found"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "API key missing or invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "API key required"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Internal server error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}
