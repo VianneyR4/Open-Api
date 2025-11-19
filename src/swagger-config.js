@@ -7,7 +7,7 @@ export const swaggerDocument = {
     "description": "API for managing zones, collecteurs, and batiments data - Read Only",
     "contact": {
       "name": "API Support",
-      "email": "support@eclinic.com"
+      "email": "vianneyrwicha2017@gmail.com"
     },
     "license": {
       "name": "MIT",
