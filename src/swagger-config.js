@@ -16,12 +16,12 @@ export const swaggerDocument = {
   },
   "servers": [
     {
-      "url": "http://localhost:4001",
-      "description": "Development server"
+      "url": "https://open-api-0jb2.onrender.com",
+      "description": "Production server"
     },
     {
-      "url": "https://api.eclinic.com/v1",
-      "description": "Production server"
+      "url": "http://localhost:4000",
+      "description": "Development server"
     }
   ],
   "tags": [
